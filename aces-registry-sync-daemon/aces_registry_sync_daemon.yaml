@@ -1,0 +1,90 @@
+#	This file is part of ACCORDION ACES.
+#
+#    ACCORDION ACES is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    ACCORDION ACES is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with ACCORDION ACES.  If not, see https://www.gnu.org/licenses/.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aces-sync
+  labels:
+    name: aces-sync
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL3JlZ2lzdHJ5LmdpdGxhYi5jb20iOnsidXNlcm5hbWUiOiJnaXRsYWIrZGVwbG95LXRva2VuLTY0ODg2NyIsInBhc3N3b3JkIjoiYnNLbXI0UWZldnVvanZ5c0tVenAiLCJhdXRoIjoiWjJsMGJHRmlLMlJsY0d4dmVTMTBiMnRsYmkwMk5EZzROamM2WW5OTGJYSTBVV1psZG5WdmFuWjVjMHRWZW5BPSJ9fX0=
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: aces-sync-token
+  namespace: aces-sync
+  labels:
+    app.kubernetes.io/name: aces-sync
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aces-sync
+  namespace: aces-sync
+  labels:
+    app.kubernetes.io/name: aces-sync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aces-sync
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aces-sync
+    spec:
+      hostNetwork: true
+      containers:
+        - name: aces-sync-daemon
+          image: registry.gitlab.com/accordion-project/wp3/aces-registry-sync-daemon
+          imagePullPolicy: Always
+          command: ["python"]
+          args: ["/pythoncode/aces_repo_sync_daemon.py"]
+          env:
+          - name: REPOSYNCPORT
+            value: "2022"
+          - name: REPOURL
+            value: "accordion.aces.registry:5045"
+          - name: KUBECONFIG
+            value: "/k3sconf/k3s.yaml"
+          - name: KAFKA_ADDRESS
+            value: "195.148.125.135:9092"
+          volumeMounts:
+          - name: auths-host
+            mountPath: /repoauths
+          - name: kubeconf-host
+            mountPath: /k3sconf
+          - name: yamltemplates
+            mountPath: /yamltemplates
+        - name: aces-kafka-daemon
+          image: registry.gitlab.com/accordion-project/wp3/aces-registry-sync-daemon
+          imagePullPolicy: Always
+          command: ["python"]
+          args: ["/pythoncode/aces_kafka_daemon.py"]
+      imagePullSecrets:
+        - name: aces-sync-token
+      volumes:
+      - name: auths-host
+        hostPath:
+          path: {{ACES_SYNC_PATH}}/repoauths
+      - name: kubeconf-host
+        hostPath:
+          path: /etc/rancher/k3s
+      - name: yamltemplates
+        hostPath:
+          path: {{ACES_SYNC_PATH}}/yamltemplates

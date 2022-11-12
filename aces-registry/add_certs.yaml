@@ -1,0 +1,61 @@
+#	This file is part of ACCORDION Edge Storage Component (ACES).
+#
+#    ACCORDION Edge Storage Component (ACES) is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    ACCORDION Edge Storage Component (ACES) is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with ACCORDION Edge Storage Component (ACES).  If not, see https://www.gnu.org/licenses/.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: registry-ca
+  namespace: aces
+  labels:
+    k8s-app: registry-ca
+spec:
+  selector:
+    matchLabels:
+      name: registry-ca
+  template:
+    metadata:
+      labels:
+        name: registry-ca
+    spec:
+      containers:
+      - name: registry-ca-docker
+        image: busybox
+        command: [ 'sh' ]
+        args: [ '-c', 'mkdir -p /etc/docker/certs.d/accordion.aces.registry:5045 && cp /home/core/tls.crt /etc/docker/certs.d/accordion.aces.registry:5045/ca.crt && exec tail -f /dev/null' ]
+        volumeMounts:
+        - name: etc-docker
+          mountPath: /etc/docker/certs.d
+        - name: ca-cert
+          mountPath: /home/core
+      - name: registry-ca-containerd
+        image: busybox
+        command: [ 'sh' ]
+        args: [ '-c', 'cat /home/core/tls.crt > /home/core-containerd/ca.crt && cat /home/core/tls.crt > /home/core-containerd/kubernetes.crt && exec tail -f /dev/null']
+        volumeMounts:
+        - name: ca-cert
+          mountPath: /home/core
+        - name: etc-containerd
+          mountPath: /home/core-containerd
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: etc-docker
+        hostPath:
+          path: /etc/docker/certs.d
+      - name: ca-cert
+        secret:
+          secretName: aces-registry-secret
+      - name: etc-containerd
+        hostPath:
+          path: /usr/local/share/ca-certificates

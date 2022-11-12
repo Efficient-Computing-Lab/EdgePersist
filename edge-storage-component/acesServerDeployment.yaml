@@ -1,0 +1,180 @@
+#	This file is part of ACCORDION Edge Storage Component (ACES).
+#
+#    ACCORDION Edge Storage Component (ACES) is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    ACCORDION Edge Storage Component (ACES) is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with ACCORDION Edge Storage Component (ACES).  If not, see https://www.gnu.org/licenses/.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aces
+  labels:
+    app: aces
+---
+apiVersion: v1
+data:
+    access-key: {{acesKey}}
+    secret-key: {{acesSecret}}
+kind: Secret
+metadata:
+  name: aces-keys
+  namespace: aces
+  labels:
+    app: aces
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL3JlZ2lzdHJ5LmdpdGxhYi5jb20iOnsidXNlcm5hbWUiOiJnaXRsYWIrZGVwbG95LXRva2VuLTM5NTEwMSIsInBhc3N3b3JkIjoiRm1FU1pWemJzN2l6cGdITmo2WnkiLCJhdXRoIjoiWjJsMGJHRmlLMlJsY0d4dmVTMTBiMnRsYmkwek9UVXhNREU2Um0xRlUxcFdlbUp6TjJsNmNHZElUbW8yV25rPSJ9fX0=
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: edge-storage-token
+  namespace: aces
+  labels:
+    app: aces
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aces-serviceaccount
+  namespace: aces
+  labels:
+    app: aces
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: aces-role
+  namespace: aces
+  labels:
+    app: aces
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  resourceNames:
+  - 'aces-keys'
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aces-role-binding
+  namespace: aces
+  labels:
+    app: aces
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aces-role
+subjects:
+- kind: ServiceAccount
+  name: aces-serviceaccount
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: aces
+  name: aces
+spec:
+  serviceName: aces
+  replicas: {{acesServers}}
+  selector:
+    matchLabels:
+      app: aces
+  template:
+    metadata:
+      labels:
+        app: aces
+    spec:
+      serviceAccountName: aces-serviceaccount
+      nodeSelector:
+        aces-worker: "true"
+      volumes:
+      - name: data
+        hostPath:
+          path: {{dataPath}}
+      containers:
+      - name: aces
+        #image: dimianstudio/minio-arm
+        image: registry.gitlab.com/accordion-project/wp3/edge-storage-component
+        imagePullPolicy: Always
+        securityContext:
+            privileged: true
+        args:
+        - server
+        - /data
+        env:
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aces-keys
+              key: access-key
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aces-keys
+              key: secret-key
+        ports:
+        - containerPort: 9000
+          hostPort: 9011
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      imagePullSecrets:
+        - name: edge-storage-token
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aces
+  namespace: aces
+  labels:
+    app: aces
+spec:
+  clusterIP: None
+  selector:
+    app: aces
+  ports:
+  - port: 9011
+    name: aces
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aces-service
+  namespace: aces
+  labels:
+    app: aces
+spec:
+  type: LoadBalancer
+  selector:
+    app: aces
+  ports:
+  - port: 9012
+    targetPort: 9011
+    protocol: TCP
