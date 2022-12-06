@@ -14,23 +14,4 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Edge Storage Enabler.  If not, see https://www.gnu.org/licenses/.
 
-# Define the file path for the data storage
-edgeDataPath=/data/test
-
-# Create the directory if it does not exists
-sudo mkdir -p $edgeDataPath
-
-# Define the directory in config file
-sudo sed -i 's;"/media/minio_storage/minio";"'$edgeDataPath'";g' "./edgeConfig.conf"
-
-# Get the first node name from K3s
-edgeNode=$(sudo k3s kubectl get nodes | head -n 2 | tail -n 1 | cut -d ' ' -f 1)
-
-# Label the node as a storage-worker
-sudo k3s kubectl label node $edgeNode edge-storage-worker=true
-
-# Make the deployment script executable
-sudo chmod +x ./edgeServerDeploy.sh
-
-# Deploy the edge storage in K3s
-sudo ./edgeServerDeploy.sh
+k3s kubectl apply -f edgeClientDeployment.yaml

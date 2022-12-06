@@ -1,17 +1,17 @@
-#	This file is part of ACCORDION Monitoring Aggregator.
+#	This file is part of Edge Registry Syncer.
 #
-#    ACCORDION Monitoring Aggregator is free software: you can redistribute it and/or modify
+#    Edge Registry Syncer is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ACCORDION Monitoring Aggregator is distributed in the hope that it will be useful,
+#    Edge Registry Syncer is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ACCORDION Monitoring Aggregator.  If not, see https://www.gnu.org/licenses/.
+#    along with Edge Registry Syncer.  If not, see https://www.gnu.org/licenses/.
 
 FROM python:3.6
 MAINTAINER E Psomakelis
@@ -27,4 +27,4 @@ COPY ./python-code /pythoncode
 # Application Environment variables
 ENV APP_ENV development
 # Running Python Application
-# CMD python aces_repo_sync_daemon.py
+# CMD python edge_repo_sync_daemon.py

@@ -1,3 +1,18 @@
+#	This file is part of Edge Registry Syncer.
+#
+#    Edge Registry Syncer is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    Edge Registry Syncer is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with Edge Registry Syncer.  If not, see https://www.gnu.org/licenses/.
+
 import json, kafka, logging, random, requests, os
 from datetime import datetime
 
@@ -46,4 +61,4 @@ def receive_messages(topic):
         print(requests.post('http://localhost:2022/kafka', data = resultObj))
         
 #list_topics()
-receive_messages('accordion.model.image.vm')
+receive_messages('edge.model.image.vm')

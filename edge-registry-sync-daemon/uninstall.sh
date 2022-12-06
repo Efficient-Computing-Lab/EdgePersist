@@ -1,17 +1,16 @@
-#!/bin/bash
-#	This file is part of ACCORDION Edge Storage Component (ACES).
+#	This file is part of Edge Registry Syncer.
 #
-#    ACCORDION Edge Storage Component (ACES) is free software: you can redistribute it and/or modify
+#    Edge Registry Syncer is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ACCORDION Edge Storage Component (ACES) is distributed in the hope that it will be useful,
+#    Edge Registry Syncer is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ACCORDION Edge Storage Component (ACES).  If not, see https://www.gnu.org/licenses/.
+#    along with Edge Registry Syncer.  If not, see https://www.gnu.org/licenses/.
 
-k3s kubectl apply -f acesClientDeployment.yaml
+sed -e 's?{{EDGE_SYNC_PATH}}?'$EDGE_SYNC_PATH'?g' "./edge_registry_sync_daemon.yaml" | k3s kubectl delete -f -

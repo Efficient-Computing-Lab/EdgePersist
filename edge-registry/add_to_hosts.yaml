@@ -1,23 +1,23 @@
-#	This file is part of ACCORDION Edge Storage Component (ACES).
+#	This file is part of Edge Registry.
 #
-#    ACCORDION Edge Storage Component (ACES) is free software: you can redistribute it and/or modify
+#    Edge Registry is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ACCORDION Edge Storage Component (ACES) is distributed in the hope that it will be useful,
+#    Edge Registry is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ACCORDION Edge Storage Component (ACES).  If not, see https://www.gnu.org/licenses/.
+#    along with Edge Registry.  If not, see https://www.gnu.org/licenses/.
 
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: registry-hosts
-  namespace: aces
+  namespace: edgestorage
   labels:
     k8s-app: registry-hosts
 spec:
@@ -33,7 +33,7 @@ spec:
       - name: registry-hosts
         image: busybox
         command: ['sh']
-        args: ['-c','grep -qF accordion.aces.registry  /hostetc/hosts || echo "{{ACES_REGISTRY_ENDPOINT}} accordion.aces.registry" >> /hostetc/hosts && exec tail -f /dev/null' ]
+        args: ['-c','grep -qF dkms.edge.registry  /hostetc/hosts || echo "{{ACES_REGISTRY_ENDPOINT}} dkms.edge.registry" >> /hostetc/hosts && exec tail -f /dev/null' ]
         volumeMounts:
         - name: etc-host
           mountPath: /hostetc

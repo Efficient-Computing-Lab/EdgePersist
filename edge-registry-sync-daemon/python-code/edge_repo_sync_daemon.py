@@ -1,3 +1,18 @@
+#	This file is part of Edge Registry Syncer.
+#
+#    Edge Registry Syncer is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    Edge Registry Syncer is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with Edge Registry Syncer.  If not, see https://www.gnu.org/licenses/.
+
 from flask import Flask, request
 from docker_registry_client import DockerRegistryClient
 import os, base64, kubernetes, time, random, yaml
@@ -14,13 +29,13 @@ def syncDocker(imageURL):
     try:
         with open('/repoauths/'+imageURL.split('/')[0].replace('.','').strip(),'r') as credFile:
             srcCreds = credFile.readline().strip()
-        jobName = f"aces-syncer-{int(random.random()*10000)}"
+        jobName = f"edge-syncer-{int(random.random()*10000)}"
         pod_manifest = {
             'apiVersion': 'batch/v1',
             'kind': 'Job',
             'metadata': {
                 'name': jobName,
-                'namespace': "aces-sync"
+                'namespace': "edge-sync"
             },
             'spec': {
                 'ttlSecondsAfterFinished': 100,
@@ -52,10 +67,10 @@ def syncDocker(imageURL):
         kubernetes.config.load_kube_config()
         api_instance = kubernetes.client.CoreV1Api()
         batchapi_instance = kubernetes.client.BatchV1Api()
-        resp = batchapi_instance.create_namespaced_job(body=pod_manifest,namespace='aces-sync')
+        resp = batchapi_instance.create_namespaced_job(body=pod_manifest,namespace='edge-sync')
         while True:
             try:
-                resp = batchapi_instance.read_namespaced_job_status(name=jobName,namespace='aces-sync')
+                resp = batchapi_instance.read_namespaced_job_status(name=jobName,namespace='edge-sync')
                 if resp.status.succeeded is not None or resp.status.failed is not None:
                     break
                 time.sleep(1)

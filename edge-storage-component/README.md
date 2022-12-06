@@ -1,6 +1,6 @@
 # Edge Storage Component
 
-This is the Edge Storage component of the ACCORDION platform (ACES for short). It aims to provide storage capabilities inside the edge mini-clouds, utilizing the edge resources and optimizing the data transfer, caching and storage.
+This is the Edge Storage component. It aims to provide storage capabilities inside the edge mini-clouds, utilizing the edge resources and optimizing the data transfer, caching and storage.
 
 # Installation
 
@@ -14,8 +14,9 @@ For multinode clusters the acesServerDeploy.sh should be used.
 In order for it to be used a manual configuration need to be carried out before it's execution.
 The configuration includes:
 * Defining the data path for data storage in the storage workers.
-* Set the data path in the aces config file `acesConfig.conf`.
-* Add the label `aces-worker=true` to all storage worker nodes.
+* Set the data path in the aces config file `edgeConfig.conf`.
+* Add the label `edge-storage-worker=true` to all storage worker nodes.
+* Add the label `edge-storage-master=true` to the storage master node.
 
 ## License
 ACES is published under the [AGPL V3 licence](https://www.gnu.org/licenses/agpl-3.0.txt).

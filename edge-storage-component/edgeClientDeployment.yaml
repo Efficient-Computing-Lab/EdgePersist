@@ -1,40 +1,40 @@
-#	This file is part of ACCORDION Edge Storage Component (ACES).
+#	This file is part of Edge Storage Enabler.
 #
-#    ACCORDION Edge Storage Component (ACES) is free software: you can redistribute it and/or modify
+#    Edge Storage Enabler is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ACCORDION Edge Storage Component (ACES) is distributed in the hope that it will be useful,
+#    Edge Storage Enabler is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ACCORDION Edge Storage Component (ACES).  If not, see https://www.gnu.org/licenses/.
+#    along with Edge Storage Enabler.  If not, see https://www.gnu.org/licenses/.
 
 apiVersion: v1
 kind: Pod
 metadata:
-  name: aces-client-sample
+  name: edge-client-sample
 spec:
   volumes:
-    - name: aces-storage
+    - name: edge-storage
       persistentVolumeClaim:
-        claimName: aces-data
+        claimName: edge-data
   containers:
-    - name: aces-test
+    - name: edge-test
       image: nginx
       volumeMounts:
-        - mountPath: "/data/aces"
-          name: aces-storage
+        - mountPath: "/data/edgestorage"
+          name: edge-storage
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 1
         preference:
           matchExpressions:
-          - key: aces-client
+          - key: edge-storage-client
             operator: In
             values:
             - "true"

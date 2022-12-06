@@ -887,7 +887,7 @@ spec:
           - weight: 1
             preference:
               matchExpressions:
-              - key: aces-server
+              - key: edge-storage-server
                 operator: In
                 values:
                 - "true"
@@ -948,7 +948,7 @@ spec:
           - weight: 1
             preference:
               matchExpressions:
-              - key: aces-server
+              - key: edge-storage-server
                 operator: In
                 values:
                 - "true"
@@ -1008,7 +1008,7 @@ spec:
           - weight: 1
             preference:
               matchExpressions:
-              - key: aces-server
+              - key: edge-storage-server
                 operator: In
                 values:
                 - "true"

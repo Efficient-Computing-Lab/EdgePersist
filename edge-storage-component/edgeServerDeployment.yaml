@@ -1,114 +1,114 @@
-#	This file is part of ACCORDION Edge Storage Component (ACES).
+#	This file is part of Edge Storage Enabler.
 #
-#    ACCORDION Edge Storage Component (ACES) is free software: you can redistribute it and/or modify
+#    Edge Storage Enabler is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ACCORDION Edge Storage Component (ACES) is distributed in the hope that it will be useful,
+#    Edge Storage Enabler is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ACCORDION Edge Storage Component (ACES).  If not, see https://www.gnu.org/licenses/.
+#    along with Edge Storage Enabler.  If not, see https://www.gnu.org/licenses/.
 
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: aces
+  name: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 ---
 apiVersion: v1
 data:
-    access-key: {{acesKey}}
-    secret-key: {{acesSecret}}
+    access-key: {{edgeKey}}
+    secret-key: {{edgeSecret}}
 kind: Secret
 metadata:
-  name: aces-keys
-  namespace: aces
+  name: edge-keys
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 ---
 apiVersion: v1
 data:
-  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL3JlZ2lzdHJ5LmdpdGxhYi5jb20iOnsidXNlcm5hbWUiOiJnaXRsYWIrZGVwbG95LXRva2VuLTM5NTEwMSIsInBhc3N3b3JkIjoiRm1FU1pWemJzN2l6cGdITmo2WnkiLCJhdXRoIjoiWjJsMGJHRmlLMlJsY0d4dmVTMTBiMnRsYmkwek9UVXhNREU2Um0xRlUxcFdlbUp6TjJsNmNHZElUbW8yV25rPSJ9fX0=
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL2doY3IuaW8iOnsidXNlcm5hbWUiOiJWUHNvbWFrIiwicGFzc3dvcmQiOiJnaHBfOFZtc0NjWXlYZUdsV2kxa3B3eEEwOWFqa1MwRExVMGhCV2NMIiwiYXV0aCI6IlZsQnpiMjFoYXpwbmFIQmZPRlp0YzBOaldYbFlaVWRzVjJreGEzQjNlRUV3T1dGcWExTXdSRXhWTUdoQ1YyTk0ifX19
 kind: Secret
 type: kubernetes.io/dockerconfigjson
 metadata:
   name: edge-storage-token
-  namespace: aces
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: aces-serviceaccount
-  namespace: aces
+  name: edge-serviceaccount
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: aces-role
-  namespace: aces
+  name: edge-role
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 rules:
 - apiGroups:
   - ''
   resources:
   - secrets
   resourceNames:
-  - 'aces-keys'
+  - 'edge-keys'
   verbs:
   - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: aces-role-binding
-  namespace: aces
+  name: edge-role-binding
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: aces-role
+  name: edge-role
 subjects:
 - kind: ServiceAccount
-  name: aces-serviceaccount
+  name: edge-serviceaccount
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: aces
-  name: aces
+  namespace: edgestorage
+  name: edgestorage
 spec:
-  serviceName: aces
-  replicas: {{acesServers}}
+  serviceName: edgestorage
+  replicas: {{edgeServers}}
   selector:
     matchLabels:
-      app: aces
+      app: edgestorage
   template:
     metadata:
       labels:
-        app: aces
+        app: edgestorage
     spec:
-      serviceAccountName: aces-serviceaccount
+      serviceAccountName: edge-serviceaccount
       nodeSelector:
-        aces-worker: "true"
+        edge-storage-worker: "true"
       volumes:
       - name: data
         hostPath:
           path: {{dataPath}}
       containers:
-      - name: aces
+      - name: edgestorage
         #image: dimianstudio/minio-arm
-        image: registry.gitlab.com/accordion-project/wp3/edge-storage-component
+        image: ghcr.io/dkmslab/edge-storage-component
         imagePullPolicy: Always
         securityContext:
             privileged: true
@@ -119,12 +119,12 @@ spec:
         - name: MINIO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: aces-keys
+              name: edge-keys
               key: access-key
         - name: MINIO_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: aces-keys
+              name: edge-keys
               key: secret-key
         ports:
         - containerPort: 9000
@@ -151,29 +151,29 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: aces
-  namespace: aces
+  name: edgestorage
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 spec:
   clusterIP: None
   selector:
-    app: aces
+    app: edgestorage
   ports:
   - port: 9011
-    name: aces
+    name: edgestorage
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: aces-service
-  namespace: aces
+  name: edge-service
+  namespace: edgestorage
   labels:
-    app: aces
+    app: edgestorage
 spec:
   type: LoadBalancer
   selector:
-    app: aces
+    app: edgestorage
   ports:
   - port: 9012
     targetPort: 9011

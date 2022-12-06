@@ -1,36 +1,36 @@
-#	This file is part of ACCORDION Monitoring Aggregator.
+#	This file is part of Edge Registry.
 #
-#    ACCORDION Monitoring Aggregator is free software: you can redistribute it and/or modify
+#    Edge Registry is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ACCORDION Monitoring Aggregator is distributed in the hope that it will be useful,
+#    Edge Registry is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ACCORDION Monitoring Aggregator.  If not, see https://www.gnu.org/licenses/.
+#    along with Edge Registry.  If not, see https://www.gnu.org/licenses/.
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: aces-registry
-  name: aces-registry
-  namespace: aces
+    app: edge-registry
+  name: edge-registry
+  namespace: edgestorage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aces-registry
+      app: edge-registry
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: aces-registry
+        app: edge-registry
     spec:
       hostNetwork: true
       containers:
@@ -44,7 +44,7 @@ spec:
             - name: REGISTRY_HTTP_ADDR
               value: "0.0.0.0:5045"
             - name: REGISTRY_HTTP_HOST
-              value: "https://accordion.aces.registry:5045"
+              value: "https://dkms.edge.registry:5045"
             - name: REGISTRY_HTTP_TLS_CERTIFICATE
               value: "/certs/tls.crt"
             - name: REGISTRY_HTTP_TLS_KEY
@@ -54,19 +54,19 @@ spec:
             - name: REGISTRY_STORAGE_S3_ACCESSKEY
               valueFrom:
                 secretKeyRef:
-                  name: aces-keys
+                  name: edge-keys
                   key: access-key
             - name: REGISTRY_STORAGE_S3_BUCKET
-              value: "registry-aces"
+              value: "registry-edge"
             - name: REGISTRY_STORAGE_S3_REGION
               value: us-east-1
             - name: REGISTRY_STORAGE_S3_SECRETKEY
               valueFrom:
                 secretKeyRef:
-                  name: aces-keys
+                  name: edge-keys
                   key: secret-key
             - name: REGISTRY_STORAGE_S3_REGIONENDPOINT
-              value: {{ACES_ENDPOINT}}
+              value: {{EDGE_ENDPOINT}}
           image: registry:2
           name: registry
           ports:
@@ -81,7 +81,7 @@ spec:
       volumes:
         - name: certs-vol
           secret:
-            secretName: aces-registry-secret
+            secretName: edge-registry-secret
         - name: auth-vol
           secret:
-            secretName: aces-registry-auth
+            secretName: edge-registry-auth
