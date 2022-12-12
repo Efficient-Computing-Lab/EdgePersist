@@ -27,7 +27,8 @@ sudo sed -i 's;"/media/minio_storage/minio";"'$edgeDataPath'";g' "./edgeConfig.c
 edgeNode=$(sudo k3s kubectl get nodes | head -n 2 | tail -n 1 | cut -d ' ' -f 1)
 
 # Label the node as a storage-worker
-sudo k3s kubectl label node $edgeNode edge-storage-worker=true
+sudo k3s kubectl label node $edgeNode edge-storage-worker=true --overwrite
+sudo k3s kubectl label node $edgeNode edge-storage-server=true --overwrite
 
 # Make the deployment script executable
 sudo chmod +x ./edgeServerDeploy.sh

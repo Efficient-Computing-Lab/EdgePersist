@@ -82,6 +82,42 @@ subjects:
 - kind: ServiceAccount
   name: edge-serviceaccount
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: edgestorage
+  name: edge-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: edge-pv-class
+  local:
+    path: {{dataPath}}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: edge-storage-worker
+          operator: In
+          values:
+          - "true"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: edge-claim
+  namespace: edgestorage
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: edge-pv-class
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -103,8 +139,8 @@ spec:
         edge-storage-worker: "true"
       volumes:
       - name: data
-        hostPath:
-          path: {{dataPath}}
+        persistentVolumeClaim:
+          claimName: edge-claim
       containers:
       - name: edgestorage
         #image: dimianstudio/minio-arm
@@ -115,6 +151,8 @@ spec:
         args:
         - server
         - /data
+        - --console-address
+        - :9001
         env:
         - name: MINIO_ACCESS_KEY
           valueFrom:
@@ -128,6 +166,8 @@ spec:
               key: secret-key
         ports:
         - containerPort: 9000
+          hostPort: 9010
+        - containerPort: 9001
           hostPort: 9011
         resources:
           limits:
@@ -138,15 +178,6 @@ spec:
           mountPath: /data
       imagePullSecrets:
         - name: edge-storage-token
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1Gi
 ---
 apiVersion: v1
 kind: Service

@@ -27,6 +27,7 @@ workerNodeArch=$(k3s kubectl get nodes -l edge-storage-worker="true" -o wide -L 
 
 sed -e 's/{{bucketName}}/'$bucketName'/g;s/{{edgeKey}}/'$edgeKey'/g;s/{{edgeSecret}}/'$edgeSecret'/g;s?{{dataPath}}?'$dataPath'?g;s?{{edgeServers}}?'$edgeServers'?g' "./edgeServerDeployment.yaml" | k3s kubectl apply -f -
 k3s kubectl wait --for=condition=ready pod edgestorage-0 -n edgestorage --timeout=120s
+edge_api="http://$(sudo k3s kubectl describe pod edgestorage-0 --namespace edgestorage | grep Node: | cut -d'/' -f 2):9010"
 edge_endpoint="http://$(sudo k3s kubectl describe pod edgestorage-0 --namespace edgestorage | grep Node: | cut -d'/' -f 2):9011"
 cat <<EOF | k3s kubectl apply -f -
 apiVersion: batch/v1
@@ -45,7 +46,7 @@ spec:
         image: minio/mc
         env:
         - name: MINIO_ACCESS_POINT
-          value: $edge_endpoint
+          value: $edge_api
         - name: MINIO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -71,12 +72,12 @@ metadata:
   name: edge-data
 spec:
   local:
-	type: "COS"
-	accessKeyID: "$edgeKeyDecoded"
-	secretAccessKey: "$edgeSecretDecoded"
-	endpoint: "$edge_endpoint"
-	bucket: "$bucketName"
-	readonly: "false"
+    type: "COS"
+    accessKeyID: "$edgeKeyDecoded"
+    secretAccessKey: "$edgeSecretDecoded"
+    endpoint: "$edge_api"
+    bucket: "$bucketName"
+    readonly: "false"
 EOF
 echo "Created the pvc named edge-data."
 fi

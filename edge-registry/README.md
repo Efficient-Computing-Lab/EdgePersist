@@ -8,6 +8,7 @@ In addition, Edge registry creates a set of secrets that allows the secure commu
 ## Setup
 In order to setup Edge registry an active Edge Storage deployment must be present in the targeted minicloud.
 Then the files of Edge registry must be downloaded from the gitlab page.
+A bucked named "registry-edge" must be present in the Edge Storage environment.
 After that the file registry_setup.sh must be executed.
 After the successfull execution of registry_setup.sh the commands `update-ca-certificates` and `systemctl restart containerd` should be executed on each client in order to ensure that the SSL certificates are updated.
 
