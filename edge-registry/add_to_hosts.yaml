@@ -33,7 +33,7 @@ spec:
       - name: registry-hosts
         image: busybox
         command: ['sh']
-        args: ['-c','grep -qF dkms.edge.registry  /hostetc/hosts || echo "{{ACES_REGISTRY_ENDPOINT}} dkms.edge.registry" >> /hostetc/hosts && exec tail -f /dev/null' ]
+        args: ['-c','grep -qF dkms.edge.registry  /hostetc/hosts || echo "{{EDGE_REGISTRY_ENDPOINT}} dkms.edge.registry" >> /hostetc/hosts && exec tail -f /dev/null' ]
         volumeMounts:
         - name: etc-host
           mountPath: /hostetc

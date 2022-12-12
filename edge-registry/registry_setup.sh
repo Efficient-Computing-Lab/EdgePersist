@@ -20,8 +20,8 @@ openssl req -newkey rsa:4096 -nodes -sha256 -keyout ./certs/tls.key -x509 -days 
 htpasswd -cB -db auth/htpasswd edgUser edgPass5
 k3s kubectl create secret tls edge-registry-secret --cert=./certs/tls.crt --key=./certs/tls.key --namespace=edgestorage
 k3s kubectl create secret generic edge-registry-auth --from-file=./auth/htpasswd --namespace=edgestorage
-edgestorage_api="http://$(sudo k3s kubectl describe pod edstorage-0 --namespace edgestorage | grep Node: | cut -d'/' -f 2):9010"
-edge_registry_endpoint="$(sudo k3s kubectl describe pod edstorage-0 --namespace edgestorage | grep Node: | cut -d'/' -f 2)"
+edgestorage_api="http://$(sudo k3s kubectl describe pod edgestorage-0 --namespace edgestorage | grep Node: | cut -d'/' -f 2):9010"
+edge_registry_endpoint="$(sudo k3s kubectl describe pod edgestorage-0 --namespace edgestorage | grep Node: | cut -d'/' -f 2)"
 sed -e 's?{{EDGE_ENDPOINT}}?"'$edgestorage_api'"?g' "./deployment.yaml" > ./deploymentEdited.yaml
 sed -e 's?{{EDGE_REGISTRY_ENDPOINT}}?"'$edge_registry_endpoint'"?g' "./add_to_hosts.yaml" > ./add_to_hostsEdited.yaml
 k3s kubectl apply -f deploymentEdited.yaml
