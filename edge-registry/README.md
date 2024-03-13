@@ -17,6 +17,5 @@ The script registry_setup.sh should output simple testing instructions as well a
 In order to use the registry through Kubernetes deployment files the endpoint must be used in the image URL of the specified containers and the image must be present in Edge registry.
 In order to list the available images the [docker registry API v2](https://docs.docker.com/registry/spec/api/) can be used, more specifically the url `/v2/_catalog`.
 
-
 ## License
 Edge registry is published under the [AGPL V3 licence](https://www.gnu.org/licenses/agpl-3.0.txt).
