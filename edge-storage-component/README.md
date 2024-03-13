@@ -88,7 +88,12 @@ Get the Dataset CRD
     edge-data    Bound    pvc-af0b3841-97ea-4384-9548-8f79bdb61a20   9314Gi     RWX            csi-s3         2m42s
 
 
-*If this command does not results the expected output something might gone wrong. Undeploy the cluster by running `sh edgeServerUndeploy.sh` and do the installation process again*
+*If this command does not result the expected output something might gone wrong. Undeploy the cluster by running `sh edgeServerUndeploy.sh` and do the installation process again*
+
+Connect to the MinIO console with the following credentials:
+
+-   Username: chesAccesskeyMinio
+-   Password: chesSecretkey
 
 ## Create Root User and Password (optional)
 
@@ -156,6 +161,68 @@ Create a file inside the folder:
  
 Then connect to the MinIO Console with the credentials mentioned above in order to see the newly created file.
 
+
+
+## Python Client API
+
+The MinIO Python Client API provides high level APIs to access MinIO Object Storage.
+
+#### Example - Bucket(s) listing and file uploader
+
+The example below does the following:
+
+-   Connects to the MinIO server using the provided credentials (an API is exposed)
+-   List information of all accessible buckets
+-   Uploads a file to a bucket
+
+Full documentation can be found here:  [Python Client API Reference](https://min.io/docs/minio/linux/developers/python/API.html)
+
+```python
+import logging
+from minio import Minio
+from minio.error import S3Error
+from multiprocessing import Process
+
+minio = Minio(
+    '[add the IP of the MiniO API]',
+    access_key='chesAccesskeyMinio',
+    secret_key='chesSecretkey',
+    secure=False,
+)
+
+def list_all_buckets():
+    #files_num = 0
+    bucket_list = minio.list_buckets()
+    for bucket in bucket_list:
+        objects = minio.list_objects(bucket.name, recursive=True)
+        print ("bucket name:", bucket.name)
+        # for obj in objects:
+        #     files_num += 1
+
+def put_object_in_bucket():
+    # Specify the bucket name and local file path
+    bucket_name = "charitybucket"
+    local_file_path = "test.txt"
+
+    # Specify the object name (optional, default to the local file name)
+    object_name = "remote-example.txt"
+
+    # Upload the local file to the MinIO bucket
+    minio.fput_object(
+        bucket_name,
+        object_name,
+        local_file_path
+    )
+    print(f"Local file {local_file_path} uploaded to {bucket_name}/{object_name} successfully.")
+
+if __name__ == '__main__':
+    try:
+        list_all_buckets()
+        put_object_in_bucket()
+    except S3Error as exc:
+        print("error occurred.", exc)
+        logging.critical("Object storage not reachable")
+```
 
 ## License  
 Edge Storage is published under the [AGPL V3 licence](https://www.gnu.org/licenses/agpl-3.0.txt).
