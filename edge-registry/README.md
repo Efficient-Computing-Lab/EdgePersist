@@ -9,7 +9,8 @@ In addition, Edge registry creates a set of secrets that allows the secure commu
 ## Setup  
 In order to setup Edge registry, an active Edge storage deployment must be present in a targeted cloud or on a single node.  
 
-A bucket named *"registry-edge"* must be present in the Edge storage environment.  (Connect to the MinIO console and create the bucket.)
+A bucket named *"registry-edge"* must be present in the Edge storage environment.  
+(_Connect to the MinIO console and create the bucket_)
 
 Make the installation script executable:
 ```sh
@@ -39,7 +40,8 @@ flowchart LR
 
 After the successful installation of the Edge registry, terminal outputs the location where the registry is listening (e.g. [*`yourIP:5045`*])
 
-Note: replace `yourIP` with your actual IP
+_Note: replace `yourIP` with your actual IP_
+
 Log in to the local Docker registry using the following command:
 
     sudo docker login yourIP:5045
