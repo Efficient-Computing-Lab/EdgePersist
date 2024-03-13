@@ -1,7 +1,8 @@
 # Edge Registry Sync Daemon
 
 ## Description
-Edge Registry Sync Daemon aims at syncing a number of remote repositories and the localized Edge registry hosted on a minicloud.
+Edge Registry Sync Daemon aims at syncing a number of remote repositories and the localized Edge
+registry.
 It is using Python v3 and Flask in order to setup a Rest API that provides multiple services that will be detailed here.
 
 ## Setup
