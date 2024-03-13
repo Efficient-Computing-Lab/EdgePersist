@@ -26,14 +26,24 @@ Below is presented a Dataset named example-dataset pointing to an S3 bucket. The
 DLF is completely agnostic to where/how a specific Dataset is stored, as long as the endpoint is accessible by the nodes within the Kubernetes cluster, in which the framework is deployed.  
   
   
-```yaml  
-cat <<EOF | kubectl apply -f -  
-apiVersion: com.ie.ibm.hpsys/v1alpha1  
-kind: Dataset  
-metadata:  
- name: example-datasetspec:  
- local: type: "COS" accessKeyID: "{AWS_ACCESS_KEY_ID}" secretAccessKey: "{AWS_SECRET_ACCESS_KEY}" endpoint: "{S3_SERVICE_URL}" bucket: "{BUCKET_NAME}" readonly: "true" #OPTIONAL, default is false region: "" #OPTIONALEOF  
-```  
+```yaml
+cat <<EOF | kubectl apply -f -
+apiVersion: com.ie.ibm.hpsys/v1alpha1
+kind: Dataset
+metadata:
+  name: example-dataset
+spec:
+  local:
+    type: "COS"
+    accessKeyID: "{AWS_ACCESS_KEY_ID}"
+    secretAccessKey: "{AWS_SECRET_ACCESS_KEY}"
+    endpoint: "{S3_SERVICE_URL}"
+    bucket: "{BUCKET_NAME}"
+    readonly: "true" #OPTIONAL, default is false
+    region: "" #OPTIONAL
+EOF
+```
+
   
   
 Creating a CRD is just the first step to add custom logic in the Kubernetes cluster. The next step is to create a component that has embedded the domain-specific application logic for the CRD. Essentially, a service provider needs to develop and install a component which reacts to the various events which are part of the lifecycle of a CRD and implements the desired functionality.  
