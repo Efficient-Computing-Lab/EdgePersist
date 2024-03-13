@@ -1,7 +1,9 @@
 # Edge Storage Component  
   
 This is the Edge Storage component. It aims to provide storage capabilities, utilizing the edge resources and optimizing the data transfer, caching and storage.  
-  
+
+More info for the System Architecture is provided in `SystemArchitect.md` file.
+
 # Installation  
   
 ## Single node cluster  
