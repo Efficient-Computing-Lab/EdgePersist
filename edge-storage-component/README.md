@@ -30,8 +30,8 @@ The configuration includes:
 * Add the label `edge-storage-worker=true` to all storage worker nodes.  
 * Add the label `edge-storage-master=true` to the storage master node.  
     - How to label nodes? 
-        - ``kubectl get nodes` returns the nodes of the cluster``     
-        - ``kubectl label node [name of the node] `ches-worker=true` or `ches-master=true` ``
+        - `kubectl get nodes` returns the nodes of the cluster   
+        - `kubectl label node [name of the node]` `ches-worker=true` or `ches-master=true`
 
 Make the installation script executable:
 
