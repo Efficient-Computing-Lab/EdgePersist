@@ -1,6 +1,6 @@
 # EdgePersist
 
-[EdgePersist](https://antonismakris.github.io/edgestorageenabler/) is a package of components that enable edge storage for IoT and smart device edge networks.
+[EdgePersist](https://antonismakris.github.io/edgestorageenabler/) is a package of components that enables edge storage for IoT and smart device edge networks.
 
 It contains three main components:
 * **Edge Storage Component**: the core component that provides the edge storage capabilities based on MinIO and K8s 
